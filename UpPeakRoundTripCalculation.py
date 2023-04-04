@@ -1,5 +1,5 @@
 import math
-
+import RTTFurtherCalculations as further
 
 
 def TimeTravelFunction(d,v,a,j,ts,t_level):
@@ -61,6 +61,13 @@ def AverageHighestReversalFloor(N,p):
 def TravelDistanceToHighestReversalFloor(H,hi, initial_floor_height):
     dh = initial_floor_height + hi*math.floor(H-1) + (H-math.floor(H))*hi
     return dh
+
+
+
+
+
+
+
 
 def main():
     #Variables
@@ -124,14 +131,24 @@ def main():
     #the real RTT calculation
     RTT = RoundTripTime(dh,dx,v,S,travel_time,P,tp,loss)
 
-    print(f"Round trip time {math.round(RTT,2)}")
-    print(f"Car rated (contract) capacity: {math.round(CC,2)}")
-    print(f"Distance to reach average reversal floor H, {math.round(H,1)}: {math.round(dh,2)}")
-    print(f"Average Number of passnger in the car based on area and mass (persons): {math.round(P,2)}")
-    print(f"Average number of stops: {math.round(S,2)}")
-    print(f"Average passenger transfer time (on exit and entry in s): {math.round(tp,2)}")
-    print(f"Time taken when making a stop {math.round(ts,2)}")
-    print(f"Effective Building Population {U}")
+    #further calculations involving RTT
+    uppint = further.UppeakInterval(RTT,L)
+    upphc = further.UpPeakHandlingCapacity(P,uppint)
+    pop = further.HandlingCapacity(upphc,U)
+
+
+    print(f"Up Peak Interval: {round(uppint,2)}s")
+    print(f"Up Peak Handling Capacity: {round(upphc,2)} people / 5 min")
+    print(f"Handling Capacity: {round(pop,2)}%")
+
+    print(f"Round trip time {round(RTT,2)}s")
+    print(f"Car rated (contract) capacity: {round(CC,2)} people")
+    print(f"Distance to reach average reversal floor H, {round(H,1)}: {round(dh,2)}m")
+    print(f"Average Number of passengers in the car based on area and mass (persons): {round(P,2)}")
+    print(f"Average number of stops: {round(S,2)}")
+    print(f"Average passenger transfer time (on exit and entry): {round(tp,2)}s")
+    print(f"Time taken when making a stop {round(ts,2)}s")
+    print(f"Effective Building Population {U} people")
     
 
 
