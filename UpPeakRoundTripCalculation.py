@@ -1,4 +1,3 @@
- 
 import math
 
 
@@ -22,12 +21,12 @@ def TimeTravelFunction(d,v,a,j,ts,t_level):
         time = ((32*d)/j)**(1/3)+ts+t_level
 
     #Output Time
-    time = round(time,2)
+    
     return time
 
 
 def TimeStop(tf, dh, S, v, time_dwell, time_door_closing, t_ad, t0):
-    ts = (tf*(dh/S) - ((dh)/(S*v))) + time_dwell + time_door_closing + t0 - t_ad
+    ts = (tf - ((dh)/(S*v))) + time_dwell + time_door_closing + t0 - t_ad
     return ts
 
 def ProbableNumberOfStops(N, ui, U, P):
@@ -39,13 +38,29 @@ def RatedCarCapacity(LC, m): #CC
     return CC
 
 def RoundTripTime(dh,dx,v,S,ts,P,tp,loss):
-    RTT = ((2*dh+dx)/v+(S+1)*ts + 2*P*tp)(1+loss)
+    RTT = ((2*dh+dx)/v+(S+1)*ts + 2*P*tp)*(1+(loss/100))
     return RTT
 
 def Passengers(cfM, cfA, CC, ac, ap): #average number of passenger in the car based on area and mass (persons)
-    pm = cfM*CC #average persons in lift according to mass 
-    pa = cfA*(ac/ap) #average persons in lift according to area of lift
+    pm = (cfM/100)*CC #average persons in lift according to mass 
+    pa = (cfA/100)*(ac/ap) #average persons in lift according to area of lift
     return min(pm,pa)
+
+def AverageHighestReversalFloor(N,p):
+    outer_sum = 0
+    for j in range(1,N+1):
+        
+        inner_sum = 0
+        for i in range(1, j):
+            inner_sum += 48/672
+        outer_sum +=(inner_sum)**p
+    H = N - outer_sum
+    return H
+
+
+def TravelDistanceToHighestReversalFloor(H,hi, initial_floor_height):
+    dh = initial_floor_height + hi*math.floor(H-1) + (H-math.floor(H))*hi
+    return dh
 
 def main():
     #Variables
@@ -71,6 +86,7 @@ def main():
     t0 = float(input("Door opening time: ")) 
     
     ui = int(input("Population per floor: "))
+    initial_floor_height = float(input("Ground Floor to First Floor Height: "))
     hi = float(input("Enter height of each floor: "))
     
 
@@ -80,9 +96,9 @@ def main():
     passenger_unloading_time = float(input("Enter passenger unloading time: "))
     tp = (passenger_loading_time + passenger_unloading_time) / 2 
     
-    #Travel Distance to Heighest Floor
+    
     dx = float(input("Total height of unserved floors (set to 0 if there are no express floors): "))
-    dh = N*hi + 5 #Try after with height of individual floors
+   
 
     #s
     CC = RatedCarCapacity(LC,m) #safe number of passengers that can be transported by the car
@@ -93,22 +109,30 @@ def main():
     #Probable Number of stops AKA S
     U = ui*N
     S = ProbableNumberOfStops(N, ui, U, P)
-
+    
+    #Average Highest Floor lift reverses at
+    H = AverageHighestReversalFloor(N,P)
+    #Travel Distance to Heighest Floor
+    dh = TravelDistanceToHighestReversalFloor(H,hi,initial_floor_height)
     d = dh/S
+    #Time function works out time to travel without considering delays
     tf = TimeTravelFunction(d,v,a,j,ts,t_level)
-    time_stop = TimeStop(tf, dh, S, v, time_dwell, time_door_closing, t_ad, t0)
+    #TimeStop function considers delays due to th lift stopping at floors
+    travel_time = TimeStop(tf, dh, S, v, time_dwell, time_door_closing, t_ad, t0)
+    
 
+    #the real RTT calculation
+    RTT = RoundTripTime(dh,dx,v,S,travel_time,P,tp,loss)
 
-    RTT = RoundTripTime(dh,dx,v,S,time_stop,P,tp,loss)
-
-    print(RTT)
-    print(CC)
-    print(dh)
-    print(P)
-    print(S)
-    print(tp)
-    print(ts)
-    print(U)
+    print(f"Round trip time {math.round(RTT,2)}")
+    print(f"Car rated (contract) capacity: {math.round(CC,2)}")
+    print(f"Distance to reach average reversal floor H, {math.round(H,1)}: {math.round(dh,2)}")
+    print(f"Average Number of passnger in the car based on area and mass (persons): {math.round(P,2)}")
+    print(f"Average number of stops: {math.round(S,2)}")
+    print(f"Average passenger transfer time (on exit and entry in s): {math.round(tp,2)}")
+    print(f"Time taken when making a stop {math.round(ts,2)}")
+    print(f"Effective Building Population {U}")
+    
 
 
 main()
