@@ -1,6 +1,4 @@
 import math
-import RTTFurtherCalculations as further
-
 
 def TimeTravelFunction(d,v,a,j,ts,t_level):
     #Choosing Equation
@@ -29,9 +27,6 @@ def TimeStop(tf, dh, S, v, time_dwell, time_door_closing, t_ad, t0):
     ts = (tf - ((dh)/(S*v))) + time_dwell + time_door_closing + t0 - t_ad
     return ts
 
-def ProbableNumberOfStops(N, ui, U, P):
-    S = N - (N*(1-(ui/U))**P)
-    return S
 
 def RatedCarCapacity(LC, m): #CC
     CC = math.floor(LC/m)
@@ -62,8 +57,31 @@ def TravelDistanceToHighestReversalFloor(H,hi, initial_floor_height):
     dh = initial_floor_height + hi*math.floor(H-1) + (H-math.floor(H))*hi
     return dh
 
+#average time betweem elevator departures
+def UppeakInterval(RTT,L):
+    uppint = RTT/L
+    return uppint
+
+#Number of people transported in 5 minutes
+def UpPeakHandlingCapacity(P,uppint):
+    upphc = (300*P)/uppint
+    return upphc
+
+#Percentage of effective building population managed
+def HandlingCapacity(upphc,U):
+    pop = (100*upphc) / U
+    return pop
+
+def ProbableNumberOfStops(N, ui, U, P):
+    
+    for i in range(len(ui)-1):
+        S = N - (N*(1-(ui[i]/U))**P)
+    return S
 
 
+def EffectivePopulation(population):
+    u = sum(population)
+    return u
 
 
 
@@ -92,7 +110,7 @@ def main():
     time_dwell = float(input("Door dwell time: "))
     t0 = float(input("Door opening time: ")) 
     
-    ui = int(input("Population per floor: "))
+    
     initial_floor_height = float(input("Ground Floor to First Floor Height: "))
     hi = float(input("Enter height of each floor: "))
     
@@ -114,8 +132,9 @@ def main():
     
 
     #Probable Number of stops AKA S
-    U = ui*N
-    S = ProbableNumberOfStops(N, ui, U, P)
+    population = list(map(int, input("\nEnter the population : ").strip().split()))[:N]
+    U = EffectivePopulation(population) 
+    S = ProbableNumberOfStops(N, population, U, P)
     
     #Average Highest Floor lift reverses at
     H = AverageHighestReversalFloor(N,P)
@@ -132,9 +151,9 @@ def main():
     RTT = RoundTripTime(dh,dx,v,S,travel_time,P,tp,loss)
 
     #further calculations involving RTT
-    uppint = further.UppeakInterval(RTT,L)
-    upphc = further.UpPeakHandlingCapacity(P,uppint)
-    pop = further.HandlingCapacity(upphc,U)
+    uppint = UppeakInterval(RTT,L)
+    upphc = UpPeakHandlingCapacity(P,uppint)
+    pop = HandlingCapacity(upphc,U)
 
 
     print(f"Up Peak Interval: {round(uppint,2)}s")
