@@ -1,5 +1,7 @@
 import math
 
+#For H, dh and Ts
+
 def TimeStop(tf, dh, S, v, time_dwell, time_door_closing, t_ad, t0):
     ts = (tf - ((dh)/(S*v))) + time_dwell + time_door_closing + t0 - t_ad
     return ts
@@ -39,9 +41,12 @@ def AverageHighestReversalFloor(N,p):
     H = N - outer_sum
     return H
 
-#COME BACK TO THIS
-def TravelDistanceToHighestReversalFloor(H,hi, initial_floor_height):
-    dh = initial_floor_height + hi*math.floor(H-1) + (H-math.floor(H))*hi
+def TravelDistanceToHighestReversalFloor(H,floor_heights):
+    dh = 0
+    for i in range(math.floor(H-1)):
+        dh += floor_heights[i]
+    
+    dh = dh + (H-math.floor(H))*floor_heights[math.floor(H)]
     return dh
 
 
@@ -51,18 +56,21 @@ def main():
     time_dwell = float(input("Door dwell time: "))
     t0 = float(input("Door opening time: "))
     S = 6.9
-
+    
     v = float(input("Velocity: "))
     a = float(input("Acceleration: "))
     j = float(input("Jerk: "))
     ts = float(input("Allowance for motor start delay: "))
     t_level = float(input("Levelling Delay: "))
-    hi = float(input("Enter height of each floor: "))
-    initial_floor_height = float(input("Ground Floor to First Floor Height: "))
+    
+
     p = 9.14
     N = 14
+
+    floor_heights = list(map(float, input("\nEnter the heights of all the floors : ").strip().split()))[:N]
+
     H = AverageHighestReversalFloor(N,p)
-    dh = TravelDistanceToHighestReversalFloor(H,hi,initial_floor_height)
+    dh = TravelDistanceToHighestReversalFloor(H,floor_heights)
     d = dh/S
     tf = TimeTravelFunction(d,v,a,j,ts,t_level)
     travel_time = TimeStop(tf, dh, S, v, time_dwell, time_door_closing, t_ad, t0)
@@ -70,6 +78,7 @@ def main():
     print(f"H: {H}")
     print(f"dh: {dh}")
     print(f"tf {tf}")
+    print(f"average number of stops {S}")
     print(f"Travel Time {travel_time}")
 
 

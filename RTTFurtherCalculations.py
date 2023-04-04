@@ -1,3 +1,4 @@
+import math
 #average time betweem elevator departures
 def UppeakInterval(RTT,L):
     uppint = RTT/L
@@ -22,9 +23,9 @@ def main():
     upphc = UpPeakHandlingCapacity(P,uppint)
     pop = HandlingCapacity(upphc,U)
 
-    print(f"Up Peak Interval: {uppint}s")
-    print(f"Up Peak Handling Capacity: {upphc} people")
-    print(f"Handling Capacity: {pop}%")
+    print(f"Up Peak Interval: {math.round(uppint,2)}s")
+    print(f"Up Peak Handling Capacity: {math.round(upphc,2)} people")
+    print(f"Handling Capacity: {math.round(pop,2)}%")
 
     
 main()
