@@ -1,4 +1,6 @@
 import math
+
+#H and dh done
 N=14
 outer_sum = 0
 inner_sum = 0
